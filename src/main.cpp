@@ -8,7 +8,7 @@ WiFiServer server(port);
 
 //Server connect to WiFi Network
 const char *ssid = "NodeMCU Server";
-const char *password = "18101152620034";
+const char *password = "12345678";
 
 void setup(){
 	Serial.begin(115200);
