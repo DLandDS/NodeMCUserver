@@ -7,32 +7,22 @@ int port = 8888;  //Port number
 WiFiServer server(port);
 
 //Server connect to WiFi Network
-const char *ssid = "---------";  //Enter your wifi SSID
-const char *password = "--------";  //Enter your wifi Password
+const char *ssid = "NodeMCU Server";
+const char *password = "18101152620034";
 
-int count=0;
-//=======================================================================
-//                    Power on setup
-//=======================================================================
 void setup(){
 	Serial.begin(115200);
-	pinMode(SendKey,INPUT_PULLUP);  //Btn to send data
-	Serial.println();
-
-	WiFi.mode(WIFI_STA);
-	WiFi.begin(ssid, password); //Connect to wifi
+	pinMode(BUILTIN_LED, OUTPUT);  //Btn to send data
 
 	// Wait for connection  
 	WiFi.mode(WIFI_STA);
 	WiFiManager wm;
 	bool res;
-	res = wm.autoConnect("AutoConnectAP","password");
+	res = wm.autoConnect(ssid,password);
 	if(!res) {
 		Serial.println("Failed to connect");
-		// ESP.restart();
 	} 
-	else {
-		//if you get here you have connected to the WiFi    
+	else { 
 		Serial.println("connected...yeey :)");
 	}
 
@@ -48,9 +38,6 @@ void setup(){
 	Serial.print(" on port ");
 	Serial.println(port);
 }
-//=======================================================================
-//                    Loop
-//=======================================================================
 
 void loop() {
 	WiFiClient client = server.available();
@@ -63,15 +50,25 @@ void loop() {
 		while(client.connected()){      
 			while(client.available()>0){
 				// read data from the connected client
-				Serial.write(client.read());
+				int bufferreader = client.read();
+				if(bufferreader == '0'){
+					digitalWrite(BUILTIN_LED, LOW);
+				} else if(bufferreader == '1'){
+					digitalWrite(BUILTIN_LED, HIGH);
+				} else {
+					Serial.println(bufferreader);
+				}
 			}
 			//Send Data to connected client
-			while(Serial.available()>0){
-				client.write(Serial.read());
+			char const *status;
+			if(digitalRead(BUILTIN_LED)==LOW){
+				status = "0";
+			} else if(digitalRead(BUILTIN_LED)==HIGH){
+				status = "1";
 			}
+			client.write(status);
 		}
 		client.stop();
 		Serial.println("Client disconnected");    
 	}
 }
-//=======================================================================
