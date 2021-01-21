@@ -52,21 +52,21 @@ void loop() {
 				// read data from the connected client
 				int bufferreader = client.read();
 				if(bufferreader == '0'){
-					digitalWrite(BUILTIN_LED, LOW);
-				} else if(bufferreader == '1'){
 					digitalWrite(BUILTIN_LED, HIGH);
+				} else if(bufferreader == '1'){
+					digitalWrite(BUILTIN_LED, LOW);
+				} else if(bufferreader == 's'){
+					char const *status;
+					if(digitalRead(BUILTIN_LED)==LOW){
+						status = "1";
+					} else if(digitalRead(BUILTIN_LED)==HIGH){
+						status = "0";
+					}
+					client.write(status);
 				} else {
 					Serial.println(bufferreader);
 				}
 			}
-			//Send Data to connected client
-			char const *status;
-			if(digitalRead(BUILTIN_LED)==LOW){
-				status = "0";
-			} else if(digitalRead(BUILTIN_LED)==HIGH){
-				status = "1";
-			}
-			client.write(status);
 		}
 		client.stop();
 		Serial.println("Client disconnected");    
