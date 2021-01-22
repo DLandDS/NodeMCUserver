@@ -58,14 +58,14 @@ void loop() {
 				} else if(bufferreader == 's'){
 					char const *status;
 					if(digitalRead(BUILTIN_LED)==LOW){
-						status = "1";
+						status = "1\n";
 					} else if(digitalRead(BUILTIN_LED)==HIGH){
-						status = "0";
+						status = "0\n";
 					}
 					client.write(status);
-				} else {
-					Serial.println(bufferreader);
-				}
+					Serial.println("Data Requested");
+				} 
+				Serial.println(bufferreader);	
 			}
 		}
 		client.stop();
