@@ -39,23 +39,21 @@ void setup(){
 
 void loop() {
 	if(server.hasClient()){
-		Serial.print("Connected : "); 
 		clients.push_back(server.available());
-		Serial.println(clients.size());
-		Serial.println(clients[clients.size()-1].remoteIP().toString());
+		printCountClient();
+		printStatus(clients[clients.size()-1]);
 		server.begin();
-		
 	}
-	for (size_t i = 0; i < clients.size(); i++)
-	{
-		Serial.printf("(%d:%s = %s)",
-		i,
-		clients[i].remoteIP().toString().c_str(),
-		clients[i].connected()?"Connected":"Disconnected");
-		if(clients[i].connected()==false){
+	
+	for(size_t i = 0; i < clients.size(); i++){
+		if(clients[i].connected()){
+			actionHandler(clients[i]);
+		} else {
+			printStatus(clients[i]);
+			clients[i].stop();
 			clients.erase(clients.begin()+i);
+			printCountClient();
 			i--;
 		}
 	}
-	Serial.printf("\n");
 }
