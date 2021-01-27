@@ -1,14 +1,12 @@
-#include <ESP8266WiFi.h>
 #include <WiFiManager.h>
+#include "clienthendler.cpp"
 
 #define SendKey 0  //Button to send data Flash BTN on NodeMCU
-
-int port = 8888;  //Port number
-WiFiServer server(port);
 
 //Server connect to WiFi Network
 const char *ssid = "NodeMCU Server";
 const char *password = "12345678";
+int i;
 
 void setup(){
 	Serial.begin(115200);
@@ -40,35 +38,24 @@ void setup(){
 }
 
 void loop() {
-	WiFiClient client = server.available();
-
-	if (client) {
-		if(client.connected()){
-			Serial.println("Client Connected");
-		}
-
-		while(client.connected()){      
-			while(client.available()>0){
-				// read data from the connected client
-				int bufferreader = client.read();
-				if(bufferreader == '0'){
-					digitalWrite(BUILTIN_LED, HIGH);
-				} else if(bufferreader == '1'){
-					digitalWrite(BUILTIN_LED, LOW);
-				} else if(bufferreader == 's'){
-					char const *status;
-					if(digitalRead(BUILTIN_LED)==LOW){
-						status = "1\n";
-					} else if(digitalRead(BUILTIN_LED)==HIGH){
-						status = "0\n";
-					}
-					client.write(status);
-					Serial.println("Data Requested");
-				} 
-				Serial.println(bufferreader);	
-			}
-		}
-		client.stop();
-		Serial.println("Client disconnected");    
+	if(server.hasClient()){
+		Serial.print("Connected : "); 
+		clients.push_back(server.available());
+		Serial.println(clients.size());
+		Serial.println(clients[clients.size()-1].remoteIP().toString());
+		server.begin();
+		
 	}
+	for (size_t i = 0; i < clients.size(); i++)
+	{
+		Serial.printf("(%d:%s = %s)",
+		i,
+		clients[i].remoteIP().toString().c_str(),
+		clients[i].connected()?"Connected":"Disconnected");
+		if(clients[i].connected()==false){
+			clients.erase(clients.begin()+i);
+			i--;
+		}
+	}
+	Serial.printf("\n");
 }
